@@ -2,6 +2,7 @@ import requests
 import xml.etree.ElementTree as ET
 from dotenv import load_dotenv
 import os
+import re
 
 # Load environment variables from .env file
 load_dotenv()
@@ -41,11 +42,19 @@ def fetch_plex_watchlist():
     root = ET.fromstring(response.content)
     return root.findall('Directory') + root.findall('Video')
 
-def fetch_tmdb_id(title, media_type):
+def remove_from_plex_watchlist(item_guid):
+    ratingKey = item_guid.rsplit('/', 1)[-1]
+    plex_url = f"https://metadata.provider.plex.tv/actions/removeFromWatchlist?ratingKey={ratingKey}&X-Plex-Token={PLEX_TOKEN}"
+    response = requests.put(plex_url)
+    if response.status_code != 200:
+        print(f"Failed to remove item from watchlist. Status Code: {response.status_code}")
+    return None
+
+def fetch_tmdb_id(title, media_type, year):
     if media_type == "show":
-        search_url = f"https://api.themoviedb.org/3/search/tv?api_key={TMDB_API_KEY}&query={title}"
+        search_url = f"https://api.themoviedb.org/3/search/tv?api_key={TMDB_API_KEY}&year={year}&query={title}"
     else:
-        search_url = f"https://api.themoviedb.org/3/search/movie?api_key={TMDB_API_KEY}&query={title}"
+        search_url = f"https://api.themoviedb.org/3/search/movie?api_key={TMDB_API_KEY}&year={year}&query={title}"
     response = requests.get(search_url)
     if response.status_code == 200:
         results = response.json().get('results')
@@ -59,10 +68,11 @@ def fetch_tmdb_id(title, media_type):
         print(f"Failed to retrieve TMDB ID for {media_type} '{title}'")
         return None
 
-def add_to_radarr(tmdb_id, title):
+def add_to_radarr(tmdb_id, title, year):
     print(f"Adding movie '{title}' to Radarr...")
     payload = {
         "title": title,
+        "year": year,
         "qualityProfileId": int(QUALITY_PROFILE),
         "tmdbId": tmdb_id,
         "rootFolderPath": RADARR_ROOT_FOLDER,
@@ -74,18 +84,19 @@ def add_to_radarr(tmdb_id, title):
     radarr_add_url = f"{RADARR_URL}/movie?apikey={RADARR_API_KEY}"
     response = requests.post(radarr_add_url, json=payload)
     if response.status_code == 201:
-        print(f"Added movie '{title}' to Radarr successfully.")
+        print(f"Added movie '{title} ({year})' to Radarr successfully.")
     else:
         try:
             error_message = response.json()[0]['errorMessage']
-            print(f"Failed to add movie '{title}' to Radarr. Error: {error_message}")
+            print(f"Failed to add movie '{title} ({year})' to Radarr. Error: {error_message}")
         except (KeyError, IndexError):
-            print(f"Failed to add movie '{title}' to Radarr. Status Code: {response.status_code}")
+            print(f"Failed to add movie '{title} ({year})' to Radarr. Status Code: {response.status_code}")
 
-def add_to_sonarr(tmdb_id, title):
-    print(f"Adding series '{title}' to Sonarr...")
+def add_to_sonarr(tmdb_id, title, year):
+    print(f"Adding series '{title} ({year})' to Sonarr...")
     payload = {
         "title": title,
+        "year": year,
         "qualityProfileId": int(QUALITY_PROFILE),
         "languageProfileId": int(LANGUAGE_PROFILE),
         "tvdbId": tmdb_id,
@@ -102,11 +113,11 @@ def add_to_sonarr(tmdb_id, title):
     else:
         try:
             error_message = response.json()[0]['errorMessage']
-            print(f"Failed to add series '{title}' to Sonarr. Error: {error_message}")
+            print(f"Failed to add series '{title} ({year})' to Sonarr. Error: {error_message}")
         except (KeyError, IndexError):
-            print(f"Failed to add series '{title}' to Sonarr. Status Code: {response.status_code}")
+            print(f"Failed to add series '{title} ({year})' to Sonarr. Status Code: {response.status_code}")
 
-def search_and_add_series(search_term):
+def search_and_add_series(search_term, year):
     search_url = f"{SONARR_URL}/series/lookup"
     headers = {"X-Api-Key": SONARR_API_KEY}
     params = {"term": search_term}
@@ -136,9 +147,9 @@ def search_and_add_series(search_term):
             else:
                 try:
                     error_message = response.json()[0]['errorMessage']
-                    print(f"Failed to add series '{series['title']}' to Sonarr. Error: {error_message}")
+                    print(f"Failed to add series '{series['title']} ({year})' to Sonarr. Error: {error_message}")
                 except (KeyError, IndexError):
-                    print(f"Failed to add series '{series['title']}' to Sonarr. Status Code: {response.status_code}")
+                    print(f"Failed to add series '{series['title']} ({year})' to Sonarr. Status Code: {response.status_code}")
         else:
             print("No series found for the search term.")
     else:
@@ -151,15 +162,20 @@ def main():
     print("Processing Plex watchlist...")
     for item in watchlist:
         title = item.get('title')
+        title_without_year = re.sub("[\(\[].*?[\)\]]", "", item.get('title')) # Workaround for shows with the (YEAR) embedded in the actual title not matching on TMDB
+        year = item.get('year')
+        guid = item.get('guid')
         media_type = item.get('type')
         if media_type == "movie":
-            tmdb_id = fetch_tmdb_id(title, media_type)
+            tmdb_id = fetch_tmdb_id(title_without_year, media_type, year)
             if tmdb_id is not None:
-                add_to_radarr(tmdb_id, title)
+                add_to_radarr(tmdb_id, title, year)
+                remove_from_plex_watchlist(guid)
         elif media_type == "show":
-            tmdb_id = fetch_tmdb_id(title, media_type)
+            tmdb_id = fetch_tmdb_id(title_without_year, media_type, year)
             if tmdb_id is not None:
-                search_and_add_series(title)
+                search_and_add_series(title, year)
+                remove_from_plex_watchlist(guid)
         else:
             print(f"Unknown media type found: {media_type}")
 
