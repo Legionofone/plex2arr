@@ -161,25 +161,26 @@ def main():
     while (True):
         watchlist = fetch_plex_watchlist()
         print(f"Found {len(watchlist)} items in Plex watchlist", flush=True)
-        print("Processing Plex watchlist...", flush=True)
-        for item in watchlist:
-            title = item.get('title')
-            title_without_year = re.sub("[\(\[].*?[\)\]]", "", item.get('title')) # Workaround for shows with the (YEAR) embedded in the actual title not matching on TMDB
-            year = item.get('year')
-            guid = item.get('guid')
-            media_type = item.get('type')
-            if media_type == "movie":
-                tmdb_id = fetch_tmdb_id(title_without_year, media_type, year)
-                if tmdb_id is not None:
-                    add_to_radarr(tmdb_id, title, year)
-                    remove_from_plex_watchlist(guid)
-            elif media_type == "show":
-                tmdb_id = fetch_tmdb_id(title_without_year, media_type, year)
-                if tmdb_id is not None:
-                    search_and_add_series(title, year)
-                    remove_from_plex_watchlist(guid)
-            else:
-                print(f"Unknown media type found: {media_type}",flush=True)
+        if len(watchlist) > 0:
+            print("Processing Plex watchlist...", flush=True)
+            for item in watchlist:
+                title = item.get('title')
+                title_without_year = re.sub("[\(\[].*?[\)\]]", "", item.get('title')) # Workaround for shows with the (YEAR) embedded in the actual title not matching on TMDB
+                year = item.get('year')
+                guid = item.get('guid')
+                media_type = item.get('type')
+                if media_type == "movie":
+                    tmdb_id = fetch_tmdb_id(title_without_year, media_type, year)
+                    if tmdb_id is not None:
+                        add_to_radarr(tmdb_id, title, year)
+                        remove_from_plex_watchlist(guid)
+                elif media_type == "show":
+                    tmdb_id = fetch_tmdb_id(title_without_year, media_type, year)
+                    if tmdb_id is not None:
+                        search_and_add_series(title, year)
+                        remove_from_plex_watchlist(guid)
+                else:
+                    print(f"Unknown media type found: {media_type}",flush=True)
         sleep(120)
 
 if __name__ == "__main__":
