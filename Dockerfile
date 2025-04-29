@@ -1,4 +1,4 @@
-FROM python:3.9 
+FROM python:3.9-alpine 
 # Or any preferred Python version.
 ADD requirements.txt .
 RUN pip install -r requirements.txt
