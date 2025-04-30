@@ -38,3 +38,8 @@ Before using this script, make sure you have the following:
          - QUALITY_PROFILE_NAME= #Full name of whatever profile you want shows or movies to use (e.g. 1080p)
        image: ghcr.io/legionofone/plex2arr:main
    ```
+### Unraid Template
+
+1. Create a new container by going to the docker tab then clicking "Add Container" at the bottom left
+2. Fill in the template with the following information, create VARIABLES for each of the shown fields. Reference the Docker Compose Example for what to put in each field.
+   ![alt text](https://github.com/Legionofone/plex2arr/blob/main/markdown/plex2arrunraid.png "Unraid Example")
