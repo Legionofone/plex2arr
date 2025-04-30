@@ -41,7 +41,6 @@ def get_root_folder(URL, API_KEY):
     response = requests.get(root_folder_url)
     if response.status_code == 200:
         root_data = response.json()
-        print (root_data[0]['path'])
         return root_data[0]['path']
     else:
         print(f'Failed to get root path for {URL}. Status Code: {response.status_code}', flush=True )
