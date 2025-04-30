@@ -22,7 +22,7 @@ LANGUAGE_PROFILE_ID = os.getenv("LANGUAGE_PROFILE_ID")
 LANGUAGE_PROFILE = int(LANGUAGE_PROFILE_ID)  # Adjust this value based on your Sonarr configuration
 
 def get_quality_profile_id(URL):
-    quality_profiles_url = f"{URL}/qualityProfile?apikey={RADARR_API_KEY}"
+    quality_profiles_url = f"{URL}/api/v3/qualityProfile?apikey={RADARR_API_KEY}"
     response = requests.get(quality_profiles_url)
     if response.status_code == 200:
         quality_profiles = response.json()
@@ -37,7 +37,7 @@ RADARR_QUALITY_PROFILE = get_quality_profile_id(RADARR_URL)
 SONARR_QUALITY_PROFILE = get_quality_profile_id(SONARR_URL)
 
 def get_root_folder(URL):
-    root_folder_url = f"{URL}/rootfolder?apikey={RADARR_API_KEY}"
+    root_folder_url = f"{URL}/api/v3/rootfolder?apikey={RADARR_API_KEY}"
     response = requests.get(root_folder_url)
     if response.status_code == 200:
         root_data = response.json()
@@ -96,7 +96,7 @@ def add_to_radarr(tmdb_id, title, year):
             "searchForMovie": True
         }
     }
-    radarr_add_url = f"{RADARR_URL}/movie?apikey={RADARR_API_KEY}"
+    radarr_add_url = f"{RADARR_URL}/api/v3/movie?apikey={RADARR_API_KEY}"
     response = requests.post(radarr_add_url, json=payload)
     if response.status_code == 201:
         print(f"Added movie '{title} ({year})' to Radarr successfully.", flush=True)
@@ -121,7 +121,7 @@ def add_to_sonarr(tmdb_id, title, year):
             "searchForMissingEpisodes": True
         }
     }
-    sonarr_add_url = f"{SONARR_URL}/series?apikey={SONARR_API_KEY}"
+    sonarr_add_url = f"{SONARR_URL}/api/v3/series?apikey={SONARR_API_KEY}"
     response = requests.post(sonarr_add_url, json=payload)
     if response.status_code == 201:
         print(f"Added series '{title}' to Sonarr successfully.", flush=True)
@@ -133,7 +133,7 @@ def add_to_sonarr(tmdb_id, title, year):
             print(f"Failed to add series '{title} ({year})' to Sonarr. Status Code: {response.status_code}", flush=True)
 
 def search_and_add_series(search_term, year):
-    search_url = f"{SONARR_URL}/series/lookup"
+    search_url = f"{SONARR_URL}/api/v3/series/lookup"
     headers = {"X-Api-Key": SONARR_API_KEY}
     params = {"term": search_term}
     
@@ -143,7 +143,7 @@ def search_and_add_series(search_term, year):
         if results:
             series = results[0]  # Assuming the first search result is the desired series
             series_id = series["tvdbId"]
-            add_series_url = f"{SONARR_URL}/series"
+            add_series_url = f"{SONARR_URL}/api/v3/series"
             payload = {
                 "title": series["title"],
                 "qualityProfileId": int(QUALITY_PROFILE),
