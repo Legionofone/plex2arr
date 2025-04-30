@@ -13,28 +13,42 @@ PLEX_TOKEN = os.getenv("PLEX_TOKEN")
 RADARR_API_KEY = os.getenv("RADARR_API_KEY")
 SONARR_API_KEY = os.getenv("SONARR_API_KEY")
 TMDB_API_KEY = os.getenv("TMDB_API_KEY")
-
 RADARR_URL = os.getenv("RADARR_URL")
 SONARR_URL = os.getenv("SONARR_URL")
-RADARR_ROOT_FOLDER = os.getenv("RADARR_ROOT_FOLDER")
-SONARR_ROOT_FOLDER = os.getenv("SONARR_ROOT_FOLDER")
+QUALITY_PROFILE_NAME = os.getenv("QUALITY_PROFILE_NAME")
+LANGUAGE_PROFILE_ID = os.getenv("LANGUAGE_PROFILE_ID")
 
 # Language Profile ID for Sonarr
-LANGUAGE_PROFILE = 1  # Adjust this value based on your Sonarr configuration
+LANGUAGE_PROFILE = int(LANGUAGE_PROFILE_ID)  # Adjust this value based on your Sonarr configuration
 
-def get_quality_profile_id():
-    quality_profiles_url = f"{RADARR_URL}/qualityProfile?apikey={RADARR_API_KEY}"
+def get_quality_profile_id(URL):
+    quality_profiles_url = f"{URL}/qualityProfile?apikey={RADARR_API_KEY}"
     response = requests.get(quality_profiles_url)
     if response.status_code == 200:
         quality_profiles = response.json()
         for profile in quality_profiles:
-            if profile["name"] == "1080p":
+            if profile["name"] == QUALITY_PROFILE_NAME:
                 return profile["id"]
     else:
         print(f"Failed to retrieve quality profiles. Status Code: {response.status_code}", flush=True )
     return None
 
-QUALITY_PROFILE = get_quality_profile_id()
+RADARR_QUALITY_PROFILE = get_quality_profile_id(RADARR_URL)
+SONARR_QUALITY_PROFILE = get_quality_profile_id(SONARR_URL)
+
+def get_root_folder(URL):
+    root_folder_url = f"{URL}/rootfolder?apikey={RADARR_API_KEY}"
+    response = requests.get(root_folder_url)
+    if response.status_code == 200:
+        root_data = response.json()
+        print (root_data[0]['path'])
+        return root_data[0]['path']
+    else:
+        print(f'Failed to get root path for {URL}. Status Code: {response.status_code}', flush=True )
+    return none
+
+RADARR_ROOT_FOLDER = get_root_folder(RADARR_URL)
+SONARR_ROOT_FOLDER = get_root_folder(SONARR_URL)
 
 def fetch_plex_watchlist():
     print("Fetching Plex watchlist...", flush=True)
@@ -74,7 +88,7 @@ def add_to_radarr(tmdb_id, title, year):
     payload = {
         "title": title,
         "year": year,
-        "qualityProfileId": int(QUALITY_PROFILE),
+        "qualityProfileId": int(RADARR_QUALITY_PROFILE),
         "tmdbId": tmdb_id,
         "rootFolderPath": RADARR_ROOT_FOLDER,
         "monitored": True,
@@ -98,7 +112,7 @@ def add_to_sonarr(tmdb_id, title, year):
     payload = {
         "title": title,
         "year": year,
-        "qualityProfileId": int(QUALITY_PROFILE),
+        "qualityProfileId": int(SONARR_QUALITY_PROFILE),
         "languageProfileId": int(LANGUAGE_PROFILE),
         "tvdbId": tmdb_id,
         "rootFolderPath": SONARR_ROOT_FOLDER,
