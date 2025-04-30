@@ -16,10 +16,6 @@ TMDB_API_KEY = os.getenv("TMDB_API_KEY")
 RADARR_URL = os.getenv("RADARR_URL")
 SONARR_URL = os.getenv("SONARR_URL")
 QUALITY_PROFILE_NAME = os.getenv("QUALITY_PROFILE_NAME")
-LANGUAGE_PROFILE_ID = os.getenv("LANGUAGE_PROFILE_ID")
-
-# Language Profile ID for Sonarr
-LANGUAGE_PROFILE = int(LANGUAGE_PROFILE_ID)  # Adjust this value based on your Sonarr configuration
 
 def get_quality_profile_id(URL, API_KEY):
     quality_profiles_url = f"{URL}/api/v3/qualityProfile?apikey={API_KEY}"
@@ -48,6 +44,18 @@ def get_root_folder(URL, API_KEY):
 
 RADARR_ROOT_FOLDER = get_root_folder(RADARR_URL, RADARR_API_KEY)
 SONARR_ROOT_FOLDER = get_root_folder(SONARR_URL, SONARR_API_KEY)
+
+def get_language(URL, API_KEY):
+    language_url = f"{URL}/api/v3/config/ui?apikey={API_KEY}"
+    response = requests.get(language_url)
+    if response.status_code == 200:
+        language_data = response.json()
+        return language_url['uiLanguage']
+    else:
+        print(f'Failed to language for {URL}. Status Code: {response.status_code}', flush=True )
+    return none    
+
+SONARR_LANGUAGE_PROFILE = get_language(SONARR_URL, SONARR_API_KEY)
 
 def fetch_plex_watchlist():
     print("Fetching Plex watchlist...", flush=True)
@@ -112,7 +120,7 @@ def add_to_sonarr(tmdb_id, title, year):
         "title": title,
         "year": year,
         "qualityProfileId": int(SONARR_QUALITY_PROFILE),
-        "languageProfileId": int(LANGUAGE_PROFILE),
+        "languageProfileId": int(SONARR_LANGUAGE_PROFILE),
         "tvdbId": tmdb_id,
         "rootFolderPath": SONARR_ROOT_FOLDER,
         "monitored": True,
@@ -146,7 +154,7 @@ def search_and_add_series(search_term, year):
             payload = {
                 "title": series["title"],
                 "qualityProfileId": int(SONARR_QUALITY_PROFILE),
-                "languageProfileId": int(LANGUAGE_PROFILE),
+                "languageProfileId": int(SONARR_LANGUAGE_PROFILE),
                 "tvdbId": series_id,
                 "rootFolderPath": SONARR_ROOT_FOLDER,
                 "monitored": True,
