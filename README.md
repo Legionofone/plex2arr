@@ -2,7 +2,7 @@
 
 This repository provides a script for integrating Plex watchlist with Radarr and Sonarr. It allows users to automatically add movies or TV Shows from their Plex watchlist to Radarr or Sonarr for automated downloading and management.
 
-This script automatically removes added movies from the watchlist. 
+###This script automatically removes added movies from the watchlist. 
 
 ## Features
 
