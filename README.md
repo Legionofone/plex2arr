@@ -1,6 +1,6 @@
 # Plex to Radarr/Sonarr Integration
 
-This repository provides a script for integrating Plex watchlist with Radarr. It allows users to automatically add movies from their Plex watchlist to Radarr for automated downloading and management.
+This repository provides a script for integrating Plex watchlist with Radarr and Sonarr. It allows users to automatically add movies or TV Shows from their Plex watchlist to Radarr or Sonarr for automated downloading and management.
 
 ## Features
 
@@ -14,8 +14,9 @@ This repository provides a script for integrating Plex watchlist with Radarr. It
 Before using this script, make sure you have the following:
 
 - Basic understanding of Docker
-- Radarr/Sonarr installed and configured with an API key.
+- Radarr and Sonarr installed and configured with API keys.
 - Plex server with a valid Plex token.
+- TMDB account with API Key
 
 ## Setup Instructions
 
@@ -28,13 +29,12 @@ Before using this script, make sure you have the following:
        container_name: plex2arr
        network_mode: bridge
        environment:
-         - PLEX_TOKEN=
-         - RADARR_API_KEY=
-         - SONARR_API_KEY=
-         - TMDB_API_KEY=
-         - RADARR_URL=
-         - SONARR_URL=
-         - RADARR_ROOT_FOLDER=
-         - SONARR_ROOT_FOLDER=
+         - PLEX_TOKEN= #Token retrieved from Plex URL
+         - RADARR_API_KEY= #Token from the Settings > General > API Key field on Radarr
+         - SONARR_API_KEY= #Token from the Settings > General > API Key field on Sonarr
+         - TMDB_API_KEY= #Token you generate after creating a TMDB account
+         - RADARR_URL= #Full URL including HTTP or HTTPS of your Radarr instance with trailing forward slash (e.g. https://radarr.example.com/)
+         - SONARR_URL= #Full URL including HTTP or HTTPS of your Sonarr instance with trailing forward slash (e.g. https://sonarr.example.com/)
+         - QUALITY_PROFILE_NAME= #Full name of whatever profile you want shows or movies to use (e.g. 1080p)
        image: ghcr.io/legionofone/plex2arr:main
    ```
