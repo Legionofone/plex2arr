@@ -145,7 +145,7 @@ def search_and_add_series(search_term, year):
             add_series_url = f"{SONARR_URL}/api/v3/series"
             payload = {
                 "title": series["title"],
-                "qualityProfileId": int(QUALITY_PROFILE),
+                "qualityProfileId": int(SONARR_QUALITY_PROFILE),
                 "languageProfileId": int(LANGUAGE_PROFILE),
                 "tvdbId": series_id,
                 "rootFolderPath": SONARR_ROOT_FOLDER,
