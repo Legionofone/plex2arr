@@ -50,8 +50,8 @@ def get_language(URL, API_KEY):
     response = requests.get(language_url)
     if response.status_code == 200:
         language_data = response.json()
-        print(language_url['uiLanguage'])
-        return language_url['uiLanguage']
+        print(language_data['uiLanguage'])
+        return language_data['uiLanguage']
     else:
         print(f'Failed to language for {URL}. Status Code: {response.status_code}', flush=True )
     return none    
