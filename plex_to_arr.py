@@ -21,8 +21,8 @@ LANGUAGE_PROFILE_ID = os.getenv("LANGUAGE_PROFILE_ID")
 # Language Profile ID for Sonarr
 LANGUAGE_PROFILE = int(LANGUAGE_PROFILE_ID)  # Adjust this value based on your Sonarr configuration
 
-def get_quality_profile_id(URL):
-    quality_profiles_url = f"{URL}/api/v3/qualityProfile?apikey={RADARR_API_KEY}"
+def get_quality_profile_id(URL, API_KEY):
+    quality_profiles_url = f"{URL}/api/v3/qualityProfile?apikey={API_KEY}"
     response = requests.get(quality_profiles_url)
     if response.status_code == 200:
         quality_profiles = response.json()
@@ -33,11 +33,11 @@ def get_quality_profile_id(URL):
         print(f"Failed to retrieve quality profiles. Status Code: {response.status_code}", flush=True )
     return None
 
-RADARR_QUALITY_PROFILE = get_quality_profile_id(RADARR_URL)
-SONARR_QUALITY_PROFILE = get_quality_profile_id(SONARR_URL)
+RADARR_QUALITY_PROFILE = get_quality_profile_id(RADARR_URL, RADARR_API_KEY)
+SONARR_QUALITY_PROFILE = get_quality_profile_id(SONARR_URL, SONARR_API_KEY)
 
-def get_root_folder(URL):
-    root_folder_url = f"{URL}/api/v3/rootfolder?apikey={RADARR_API_KEY}"
+def get_root_folder(URL, API_KEY):
+    root_folder_url = f"{URL}/api/v3/rootfolder?apikey={API_KEY}"
     response = requests.get(root_folder_url)
     if response.status_code == 200:
         root_data = response.json()
@@ -47,8 +47,8 @@ def get_root_folder(URL):
         print(f'Failed to get root path for {URL}. Status Code: {response.status_code}', flush=True )
     return none
 
-RADARR_ROOT_FOLDER = get_root_folder(RADARR_URL)
-SONARR_ROOT_FOLDER = get_root_folder(SONARR_URL)
+RADARR_ROOT_FOLDER = get_root_folder(RADARR_URL, RADARR_API_KEY)
+SONARR_ROOT_FOLDER = get_root_folder(SONARR_URL, SONARR_API_KEY)
 
 def fetch_plex_watchlist():
     print("Fetching Plex watchlist...", flush=True)
