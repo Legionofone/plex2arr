@@ -202,7 +202,7 @@ def main():
                         remove_from_plex_watchlist(guid)
                 else:
                     print(f"Unknown media type found: {media_type}",flush=True)
-        sleep(120)
+        sleep(600)
 
 if __name__ == "__main__":
     main()
