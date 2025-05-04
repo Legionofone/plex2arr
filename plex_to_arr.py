@@ -60,14 +60,14 @@ SONARR_LANGUAGE_PROFILE = int(get_language(SONARR_URL, SONARR_API_KEY))
 def fetch_plex_watchlist():
     print("Fetching Plex watchlist...", flush=True)
     plex_url = f"https://metadata.provider.plex.tv/library/sections/watchlist/all?X-Plex-Token={PLEX_TOKEN}"
-    response = requests.get(plex_url)
+    response = requests.get(plex_url, timeout=60)
     root = ET.fromstring(response.content)
     return root.findall('Directory') + root.findall('Video')
 
 def remove_from_plex_watchlist(item_guid):
     ratingKey = item_guid.rsplit('/', 1)[-1]
     plex_url = f"https://metadata.provider.plex.tv/actions/removeFromWatchlist?ratingKey={ratingKey}&X-Plex-Token={PLEX_TOKEN}"
-    response = requests.put(plex_url)
+    response = requests.put(plex_url, timeout=60)
     if response.status_code != 200:
         print(f"Failed to remove item from watchlist. Status Code: {response.status_code}", flush=True)
     return None
@@ -180,7 +180,12 @@ def search_and_add_series(search_term, year):
 def main():
     print("Starting script...", flush=True)
     while (True):
-        watchlist = fetch_plex_watchlist()
+        watchlist = {}
+        try:
+            watchlist = fetch_plex_watchlist()
+        except:
+            print("Failed to retrieve plex watchlist", flush=True)
+            continue
         print(f"Found {len(watchlist)} items in Plex watchlist", flush=True)
         if len(watchlist) > 0:
             print("Processing Plex watchlist...", flush=True)
@@ -194,13 +199,21 @@ def main():
                     tmdb_id = fetch_tmdb_id(title_without_year, media_type, year)
                     if tmdb_id is not None:
                         add_to_radarr(tmdb_id, title, year)
-                        remove_from_plex_watchlist(guid)
+                        try:
+                            remove_from_plex_watchlist(guid)
+                        except:
+                            print(f"Failed to remove {title} from watchlist", flush=True)
+                            continue
                 elif media_type == "show":
                     tmdb_id = fetch_tmdb_id(title_without_year, media_type, year)
                     if tmdb_id is not None:
                         search_and_add_series(title, year)
-                        remove_from_plex_watchlist(guid)
-                else:
+                        try:
+                            remove_from_plex_watchlist(guid)
+                        except:
+                            print(f"Failed to remove {title} from watchlist", flush=True)
+                            continue
+                else:    
                     print(f"Unknown media type found: {media_type}",flush=True)
         sleep(600)
 
