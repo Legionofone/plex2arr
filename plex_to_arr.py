@@ -102,7 +102,7 @@ def add_to_radarr(tmdb_id, title, year):
         "tmdbId": tmdb_id,
         "rootFolderPath": RADARR_ROOT_FOLDER,
         "monitored": True,
-        "tags": [RADARR_TAG],
+        "tags": [int(RADARR_TAG)],
         "addOptions": {
             "searchForMovie": True
         }
@@ -128,7 +128,7 @@ def add_to_sonarr(tmdb_id, title, year):
         "tvdbId": tmdb_id,
         "rootFolderPath": SONARR_ROOT_FOLDER,
         "monitored": True,
-        "tags": [SONARR_TAG],
+        "tags": [int(SONARR_TAG)],
         "addOptions": {
             "searchForMissingEpisodes": True
         }
