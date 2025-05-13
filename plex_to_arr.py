@@ -19,6 +19,8 @@ QUALITY_PROFILE_NAME = os.getenv("QUALITY_PROFILE_NAME")
 SONARR_TAG = os.getenv("SONARR_TAG") or 0
 RADARR_TAG = os.getenv("RADARR_TAG") or 0
 
+print(SONARR_TAG)
+print(RADARR_TAG)
 
 def get_quality_profile_id(URL, API_KEY):
     quality_profiles_url = f"{URL}/api/v3/qualityProfile?apikey={API_KEY}"
