@@ -16,6 +16,9 @@ TMDB_API_KEY = os.getenv("TMDB_API_KEY")
 RADARR_URL = os.getenv("RADARR_URL")
 SONARR_URL = os.getenv("SONARR_URL")
 QUALITY_PROFILE_NAME = os.getenv("QUALITY_PROFILE_NAME")
+SONARR_TAG = os.getenv("SONARR_TAG") or 0
+RADARR_TAG = os.getenv("RADARR_TAG") or 0
+
 
 def get_quality_profile_id(URL, API_KEY):
     quality_profiles_url = f"{URL}/api/v3/qualityProfile?apikey={API_KEY}"
@@ -99,6 +102,7 @@ def add_to_radarr(tmdb_id, title, year):
         "tmdbId": tmdb_id,
         "rootFolderPath": RADARR_ROOT_FOLDER,
         "monitored": True,
+        "tags": [RADARR_TAG],
         "addOptions": {
             "searchForMovie": True
         }
@@ -124,6 +128,7 @@ def add_to_sonarr(tmdb_id, title, year):
         "tvdbId": tmdb_id,
         "rootFolderPath": SONARR_ROOT_FOLDER,
         "monitored": True,
+        "tags": [SONARR_TAG],
         "addOptions": {
             "searchForMissingEpisodes": True
         }
