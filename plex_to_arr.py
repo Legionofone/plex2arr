@@ -109,6 +109,7 @@ def add_to_radarr(tmdb_id, title, year):
             "searchForMovie": True
         }
     }
+    print(payload)
     radarr_add_url = f"{RADARR_URL}/api/v3/movie?apikey={RADARR_API_KEY}"
     response = requests.post(radarr_add_url, json=payload)
     if response.status_code == 201:
@@ -135,6 +136,7 @@ def add_to_sonarr(tmdb_id, title, year):
             "searchForMissingEpisodes": True
         }
     }
+    print(payload)
     sonarr_add_url = f"{SONARR_URL}/api/v3/series?apikey={SONARR_API_KEY}"
     response = requests.post(sonarr_add_url, json=payload)
     if response.status_code == 201:
