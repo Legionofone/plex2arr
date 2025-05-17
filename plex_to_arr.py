@@ -167,6 +167,7 @@ def search_and_add_series(search_term, year):
                 "tvdbId": series_id,
                 "rootFolderPath": SONARR_ROOT_FOLDER,
                 "monitored": True,
+                "tags": [int(RADARR_TAG)],
                 "addOptions": {
                     "searchForMissingEpisodes": True
                 }
