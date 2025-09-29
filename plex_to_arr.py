@@ -64,9 +64,8 @@ SONARR_LANGUAGE_PROFILE = int(get_language(SONARR_URL, SONARR_API_KEY))
 
 def fetch_plex_watchlist():
     print("Fetching Plex watchlist...", flush=True)
-    plex_url = f"https://metadata.provider.plex.tv/library/sections/watchlist/all?X-Plex-Token={PLEX_TOKEN}"
+    plex_url = f"https://discover.provider.plex.tv/library/sections/watchlist/all?X-Plex-Token={PLEX_TOKEN}"
     response = requests.get(plex_url, timeout=60)
-    print(response.content)
     root = ET.fromstring(response.content)
     return root.findall('Directory') + root.findall('Video')
 
