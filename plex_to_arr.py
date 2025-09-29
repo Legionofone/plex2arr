@@ -66,6 +66,7 @@ def fetch_plex_watchlist():
     print("Fetching Plex watchlist...", flush=True)
     plex_url = f"https://metadata.provider.plex.tv/library/sections/watchlist/all?X-Plex-Token={PLEX_TOKEN}"
     response = requests.get(plex_url, timeout=60)
+    print(response.content)
     root = ET.fromstring(response.content)
     return root.findall('Directory') + root.findall('Video')
 
