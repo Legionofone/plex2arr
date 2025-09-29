@@ -71,7 +71,7 @@ def fetch_plex_watchlist():
 
 def remove_from_plex_watchlist(item_guid):
     ratingKey = item_guid.rsplit('/', 1)[-1]
-    plex_url = f"https://metadata.provider.plex.tv/actions/removeFromWatchlist?ratingKey={ratingKey}&X-Plex-Token={PLEX_TOKEN}"
+    plex_url = f"https://discover.provider.plex.tv/actions/removeFromWatchlist?ratingKey={ratingKey}&X-Plex-Token={PLEX_TOKEN}"
     response = requests.put(plex_url, timeout=60)
     if response.status_code != 200:
         print(f"Failed to remove item from watchlist. Status Code: {response.status_code}", flush=True)
